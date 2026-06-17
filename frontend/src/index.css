@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-slate-50 text-secondary-light antialiased;
+    scroll-behavior: smooth;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans text-secondary font-bold tracking-tight;
+  }
+}
+
+/* Custom styles for premium visuals and animations */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glassmorphism-dark {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+}
+
+/* Animated background gradient mesh */
+.bg-mesh {
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(0, 72%, 93%, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(38, 92%, 93%, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(0, 0%, 100%, 1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(220, 100%, 97%, 1) 0px, transparent 50%);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(220, 38, 38, 0.2);
+}
