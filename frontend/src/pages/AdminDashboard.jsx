@@ -77,7 +77,7 @@ const AdminDashboard = () => {
   const fetchAnalytics = async () => {
     setLoadingStats(true);
     try {
-      const res = await api.get('/admin/dashboard');
+      const res = await api.get('/admin/stats');
       setStats(res.data);
     } catch (err) {
       console.error(err);
@@ -287,7 +287,7 @@ const AdminDashboard = () => {
 
   const handleUpdatePaymentStatus = async (id, status) => {
     try {
-      await api.put(`/admin/orders/${id}/payment`, { paymentStatus: status });
+      await api.put(`/admin/orders/${id}/status`, { paymentStatus: status });
       showNotification(`Payment status updated to ${status}`);
       fetchOrders();
     } catch (err) {
@@ -299,7 +299,7 @@ const AdminDashboard = () => {
   const fetchCustomers = async () => {
     setLoadingCustomers(true);
     try {
-      const res = await api.get('/admin/users');
+      const res = await api.get('/admin/customers');
       setCustomers(res.data);
     } catch (err) {
       showNotification('Failed to fetch customers.', 'error');
@@ -310,7 +310,7 @@ const AdminDashboard = () => {
 
   const handleToggleUserStatus = async (id, isActive) => {
     try {
-      await api.put(`/admin/users/${id}/status`, { isActive: !isActive });
+      await api.put(`/admin/customers/${id}/status`, { isActive: !isActive });
       showNotification(isActive ? 'User account deactivated.' : 'User account activated.');
       fetchCustomers();
     } catch (err) {
