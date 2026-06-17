@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, CheckCircle, ArrowRight, ShieldCheck, Tag, Award, Users, Star, MessageSquare } from 'lucide-react';
+import { Phone, CheckCircle, ArrowRight, ShieldCheck, Tag, Award, Users, Star, MessageSquare, Laptop, Monitor, Network, Shield } from 'lucide-react';
 import api from '../utils/api';
 
 const Home = () => {
@@ -64,25 +64,25 @@ const Home = () => {
     {
       title: 'Laptop Sales & Service',
       desc: 'Expert chip-level repairing, panel replacements, OS installations, and boot issues resolving.',
-      icon: '💻',
+      icon: Laptop,
       image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Desktop Sales & Service',
       desc: 'Custom assembled gaming & office PCs, hardware upgrading, maintenance and troubleshooting.',
-      icon: '🖥️',
+      icon: Monitor,
       image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Networking Solutions',
       desc: 'Cat6 structured cabling, switch configs, router routing, and secure WiFi coverage setups.',
-      icon: '🌐',
+      icon: Network,
       image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'CCTV Installation',
       desc: 'Top-tier high definition IP/analog security system designs with mobile monitoring and AMCs.',
-      icon: '🛡️',
+      icon: Shield,
       image: 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&q=80&w=800'
     }
   ];
@@ -186,22 +186,24 @@ const Home = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
           >
-            {services.map((item, idx) => (
-              <motion.div
-                key={idx}
-                variants={fadeInUp}
-                className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-primary/20 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col h-full group"
-              >
-                <div className="h-48 overflow-hidden relative">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-2xl shadow-sm">
-                    {item.icon}
+            {services.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={idx}
+                  variants={fadeInUp}
+                  className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-primary/20 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col h-full group"
+                >
+                  <div className="h-48 overflow-hidden relative">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-2.5 text-primary shadow-sm h-10 w-10 flex items-center justify-center">
+                      <Icon size={20} />
+                    </div>
                   </div>
-                </div>
                 <div className="p-6 flex-grow flex flex-col justify-between">
                   <div>
                     <h3 className="font-bold text-lg text-secondary mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
@@ -216,7 +218,7 @@ const Home = () => {
                   </Link>
                 </div>
               </motion.div>
-            ))}
+            )})}
           </motion.div>
         </div>
       </section>
