@@ -26,9 +26,12 @@ export const AuthProvider = ({ children }) => {
     window.addEventListener('auth_logout', handleAuthLogout);
 
     const token = localStorage.getItem('gtech_access_token');
-    if (token) {
+    if (token && token !== 'undefined' && token !== 'null' && token.trim() !== '') {
       fetchUser();
     } else {
+      // Clean up local storage if it had junk values
+      localStorage.removeItem('gtech_access_token');
+      localStorage.removeItem('gtech_refresh_token');
       setLoading(false);
     }
 

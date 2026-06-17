@@ -51,59 +51,64 @@ const Cart = () => {
               {cart.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4"
+                  className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-4 justify-between"
                 >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 object-cover rounded-xl bg-slate-50 flex-shrink-0"
-                  />
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-2xl bg-slate-50 flex-shrink-0"
+                    />
 
-                  {/* Title and brand */}
-                  <div className="flex-grow min-w-0">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
-                      {item.brand}
-                    </span>
-                    <Link
-                      to={`/products/${item.productId}`}
-                      className="font-bold text-secondary text-sm hover:text-primary transition-colors line-clamp-1"
-                    >
-                      {item.name}
-                    </Link>
-                    <span className="text-xs font-semibold text-slate-500 block mt-1">
-                      INR {item.price.toLocaleString()} each
-                    </span>
+                    {/* Title and brand */}
+                    <div className="flex-grow min-w-0">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
+                        {item.brand}
+                      </span>
+                      <Link
+                        to={`/products/${item.productId}`}
+                        className="font-bold text-secondary text-sm hover:text-primary transition-colors line-clamp-2"
+                      >
+                        {item.name}
+                      </Link>
+                      <span className="text-xs font-semibold text-slate-500 block mt-1">
+                        INR {item.price.toLocaleString()} each
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Quantity controls */}
-                  <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 overflow-hidden">
-                    <button
-                      onClick={() => handleQtyChange(item.productId, item.quantity, -1, item.stock)}
-                      className="px-2.5 py-1 text-slate-500 font-bold hover:bg-slate-100 disabled:opacity-50"
-                    >
-                      -
-                    </button>
-                    <span className="px-3 text-xs font-extrabold text-secondary">{item.quantity}</span>
-                    <button
-                      onClick={() => handleQtyChange(item.productId, item.quantity, 1, item.stock)}
-                      className="px-2.5 py-1 text-slate-500 font-bold hover:bg-slate-100"
-                    >
-                      +
-                    </button>
-                  </div>
+                  {/* Quantity and Price controls */}
+                  <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+                    {/* Quantity controls */}
+                    <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 overflow-hidden">
+                      <button
+                        onClick={() => handleQtyChange(item.productId, item.quantity, -1, item.stock)}
+                        className="px-2.5 py-1 text-slate-500 font-bold hover:bg-slate-100 disabled:opacity-50"
+                      >
+                        -
+                      </button>
+                      <span className="px-3 text-xs font-extrabold text-secondary">{item.quantity}</span>
+                      <button
+                        onClick={() => handleQtyChange(item.productId, item.quantity, 1, item.stock)}
+                        className="px-2.5 py-1 text-slate-500 font-bold hover:bg-slate-100"
+                      >
+                        +
+                      </button>
+                    </div>
 
-                  {/* Item Total Price */}
-                  <div className="text-right min-w-[80px]">
-                    <span className="font-extrabold text-sm text-secondary block">
-                      INR {(item.price * item.quantity).toLocaleString()}
-                    </span>
-                    <button
-                      onClick={() => removeFromCart(item.productId)}
-                      className="text-slate-400 hover:text-primary transition-colors p-1 mt-1 inline-block"
-                      title="Remove item"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {/* Item Total Price */}
+                    <div className="text-right min-w-[100px] flex items-center justify-end gap-3 sm:flex-col sm:gap-1">
+                      <span className="font-extrabold text-sm text-secondary">
+                        INR {(item.price * item.quantity).toLocaleString()}
+                      </span>
+                      <button
+                        onClick={() => removeFromCart(item.productId)}
+                        className="text-slate-400 hover:text-primary transition-colors p-1"
+                        title="Remove item"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

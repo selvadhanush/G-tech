@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { MapPin, User, Mail, Phone, Plus, Trash2, ShieldCheck } from 'lucide-react';
+import { MapPin, User, Mail, Phone, Plus, Trash2, ShieldCheck, Package } from 'lucide-react';
 import api from '../utils/api';
 
 const Profile = () => {
@@ -117,6 +118,16 @@ const Profile = () => {
                 <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
                   <ShieldCheck size={15} className="text-green-500" />
                   <span className="text-green-600">Active Profile</span>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100">
+                  <Link
+                    to="/my-orders"
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-sm"
+                  >
+                    <Package size={14} />
+                    <span>View My Orders</span>
+                  </Link>
                 </div>
               </div>
             </div>

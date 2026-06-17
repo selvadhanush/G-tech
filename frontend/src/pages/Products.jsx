@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, Tag, ShoppingCart, CheckCircle } from 'lucide-react';
+import { Search, SlidersHorizontal, Tag, ShoppingCart, CheckCircle, X } from 'lucide-react';
 import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 
@@ -16,6 +16,7 @@ const Products = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sort, setSort] = useState('newest');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   
   const [actionStatus, setActionStatus] = useState({}); // { productId: 'added' / 'error' }
 
@@ -189,10 +190,20 @@ const Products = () => {
             
             {/* Top Toolbar */}
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-8">
-              <div className="text-xs text-slate-500 font-medium">
-                Showing <span className="font-bold text-secondary">{products.length}</span> technological products
+              <div className="flex w-full sm:w-auto justify-between items-center gap-4">
+                <div className="text-xs text-slate-500 font-medium">
+                  Showing <span className="font-bold text-secondary">{products.length}</span> products
+                </div>
+                {/* Mobile Filter Button */}
+                <button
+                  onClick={() => setShowMobileFilters(true)}
+                  className="lg:hidden flex items-center gap-1.5 text-xs font-bold bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-xl transition-all"
+                >
+                  <SlidersHorizontal size={14} />
+                  <span>Filters</span>
+                </button>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                 <span className="text-xs text-slate-400 font-semibold uppercase">Sort By:</span>
                 <select
                   value={sort}
@@ -333,6 +344,133 @@ const Products = () => {
           </div>
         </div>
       </div>
+
+      {/* MOBILE FILTERS MODAL */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setShowMobileFilters(false)}
+          />
+          {/* Panel */}
+          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] bg-white rounded-t-[32px] p-6 shadow-2xl overflow-y-auto flex flex-col justify-between border-t border-slate-100 animate-slide-up">
+            <div>
+              <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100">
+                <div className="flex items-center gap-2 font-bold text-secondary text-sm uppercase tracking-wider">
+                  <SlidersHorizontal size={16} className="text-primary" />
+                  <span>Filters</span>
+                </div>
+                <button 
+                  onClick={() => setShowMobileFilters(false)}
+                  className="p-1 text-slate-400 hover:text-secondary transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form 
+                onSubmit={(e) => {
+                  handleFilterSubmit(e);
+                  setShowMobileFilters(false);
+                }} 
+                className="space-y-6"
+              >
+                {/* Keyword Search */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Search Catalog</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search model, specs..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 pl-9 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    />
+                    <Search className="absolute left-3 top-3 text-slate-400" size={14} />
+                  </div>
+                </div>
+
+                {/* Category selector */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Category</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Brand Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Brand</label>
+                  <select
+                    value={selectedBrand}
+                    onChange={(e) => setSelectedBrand(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  >
+                    <option value="">All Brands</option>
+                    {uniqueBrands.map((brand, idx) => (
+                      <option key={idx} value={brand}>{brand}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Price filter */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Price range (INR)</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch('');
+                      setSelectedCategory('');
+                      setSelectedBrand('');
+                      setMinPrice('');
+                      setMaxPrice('');
+                      // trigger refetch immediately
+                      api.get('/products').then(res => setProducts(res.data));
+                      setShowMobileFilters(false);
+                    }}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-secondary text-xs font-bold py-3 rounded-xl transition-all"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-primary hover:bg-primary-dark text-white text-xs font-bold py-3 rounded-xl transition-all shadow-md"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -61,8 +61,8 @@ const MyOrders = () => {
                 className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden"
               >
                 {/* Header section */}
-                <div className="bg-slate-50 px-6 py-4 flex flex-wrap gap-4 items-center justify-between border-b border-slate-100">
-                  <div className="flex gap-6 text-xs text-slate-500 font-semibold">
+                <div className="bg-slate-50 px-4 sm:px-6 py-4 flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-b border-slate-100">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 sm:gap-6 text-xs text-slate-500 font-semibold">
                     <div>
                       <span className="block uppercase text-[9px] text-slate-400 mb-0.5">Order Placed</span>
                       <span className="text-secondary flex items-center gap-1">
@@ -78,13 +78,13 @@ const MyOrders = () => {
                       <span className="block uppercase text-[9px] text-slate-400 mb-0.5">Total Amount</span>
                       <span className="text-primary font-bold">INR {order.totalAmount.toLocaleString()}</span>
                     </div>
-                    <div>
+                    <div className="col-span-2 sm:col-span-1">
                       <span className="block uppercase text-[9px] text-slate-400 mb-0.5">Order ID</span>
                       <span className="text-secondary uppercase">#{order.id.slice(-8)}</span>
                     </div>
                   </div>
 
-                  <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${getStatusColor(order.orderStatus)}`}>
+                  <span className={`self-start sm:self-auto text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${getStatusColor(order.orderStatus)}`}>
                     {order.orderStatus}
                   </span>
                 </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Shield, PhoneCall, ClipboardCheck, LogOut, ShoppingCart, User } from 'lucide-react';
+import { Menu, X, Shield, PhoneCall, ClipboardCheck, LogOut, ShoppingCart, User, Package } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import LeadTrackingModal from './LeadTrackingModal';
@@ -69,7 +69,7 @@ const Navbar = () => {
               >
                 <ShoppingCart size={20} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[9px] font-extrabold rounded-full h-4.5 w-4.5 flex items-center justify-center border border-white">
+                  <span className="absolute -top-1 -right-1 bg-primary text-white text-[9px] font-extrabold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
                     {cartCount}
                   </span>
                 )}
@@ -85,6 +85,15 @@ const Navbar = () => {
 
               {isAuthenticated ? (
                 <div className="flex items-center gap-2">
+                  <Link
+                    to="/my-orders"
+                    className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-2.5 rounded-lg border border-slate-200 transition-colors"
+                    title="My Orders"
+                  >
+                    <Package size={14} className="text-secondary" />
+                    <span>Orders</span>
+                  </Link>
+
                   <Link
                     to="/profile"
                     className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-2.5 rounded-lg border border-slate-200 transition-colors"
@@ -188,11 +197,19 @@ const Navbar = () => {
 
               {isAuthenticated ? (
                 <div className="flex flex-col gap-2">
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      to="/my-orders"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-grow flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 rounded-lg text-sm min-w-[120px]"
+                    >
+                      <Package size={16} className="text-secondary" />
+                      <span>My Orders</span>
+                    </Link>
                     <Link
                       to="/profile"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex-grow flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 rounded-lg text-sm"
+                      className="flex-grow flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 rounded-lg text-sm min-w-[120px]"
                     >
                       <User size={16} className="text-secondary" />
                       <span>My Profile</span>
@@ -201,7 +218,7 @@ const Navbar = () => {
                       <Link
                         to="/admin"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="flex-grow flex items-center justify-center gap-2 bg-primary/10 text-primary font-semibold py-3 rounded-lg text-sm"
+                        className="w-full flex items-center justify-center gap-2 bg-primary/10 text-primary font-semibold py-3 rounded-lg text-sm"
                       >
                         <Shield size={16} />
                         <span>Admin Console</span>
