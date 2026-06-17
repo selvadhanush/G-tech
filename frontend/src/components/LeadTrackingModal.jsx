@@ -33,9 +33,8 @@ const LeadTrackingModal = ({ isOpen, onClose, initialRequestId = '' }) => {
 
   const statusSteps = [
     { name: 'Submitted', icon: FileText, desc: 'Your request has been received.' },
-    { name: 'Under Review', icon: Clock, desc: 'Our technicians are evaluating your requirements.' },
-    { name: 'In Progress', icon: Wrench, desc: 'Work is currently underway.' },
-    { name: 'Completed', icon: CheckCircle, desc: 'Service completed and verified.' }
+    { name: 'Reviewing', icon: Clock, desc: 'Our technicians are evaluating your requirements.' },
+    { name: 'Resolved', icon: CheckCircle, desc: 'Service completed and verified.' }
   ];
 
   const getStatusIndex = (currentStatus) => {

@@ -1,22 +1,31 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const prisma = require('./config/prisma');
-const { authMiddleware, adminMiddleware } = require('./middleware/auth');
-
 const authRoutes = require('./routes/authRoutes');
-const serviceRoutes = require('./routes/serviceRoutes');
-const projectRoutes = require('./routes/projectRoutes');
-const testimonialRoutes = require('./routes/testimonialRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const addressRoutes = require('./routes/addressRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
+const testimonialRoutes = require('./routes/testimonialRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
+
+// Security Headers
+app.use(helmet());
 
 // Enable CORS
 app.use(cors({
-  origin: '*', // Allow all origins for simplicity, can be customized for production
+  origin: '*', // For production deployment, you can set it to specific domains
   credentials: true,
 }));
 
@@ -24,60 +33,46 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Standard root endpoint
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to G-TECH Innovation Lead Management API.' });
+// Rate Limiter for Authentication routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per window
+  message: { message: 'Too many login or register attempts, please try again later.' }
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/services', serviceRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/testimonials', testimonialRoutes);
+// Apply rate limiter to auth routes
+app.use('/api/auth', authLimiter, authRoutes);
+
+// Other API Routes
+app.use('/api/categories', categoryRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/addresses', addressRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/testimonials', testimonialRoutes);
 
-// Admin Dashboard Stats Endpoint
-app.get('/api/dashboard/stats', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const [contactsCount, projectsCount, servicesCount, testimonialsCount] = await Promise.all([
-      prisma.contact.count(),
-      prisma.project.count(),
-      prisma.service.count(),
-      prisma.testimonial.count(),
-    ]);
-
-    // Also get recent leads count or status counts if needed
-    const submittedCount = await prisma.contact.count({ where: { status: 'Submitted' } });
-    const inProgressCount = await prisma.contact.count({ where: { status: 'In Progress' } });
-    const completedCount = await prisma.contact.count({ where: { status: 'Completed' } });
-
-    res.json({
-      totalContacts: contactsCount,
-      totalProjects: projectsCount,
-      totalServices: servicesCount,
-      totalTestimonials: testimonialsCount,
-      statusBreakdown: {
-        submitted: submittedCount,
-        inProgress: inProgressCount,
-        completed: completedCount,
-      }
-    });
-  } catch (error) {
-    console.error('Retrieve Dashboard Stats Error:', error);
-    res.status(500).json({ message: 'Error retrieving system statistics.' });
-  }
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to G-TECH Innovation E-Commerce Workstation API.' });
 });
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Unhandled Error:', err.message);
+  console.error('Unhandled Error:', err);
   res.status(500).json({ 
     message: 'Something went wrong on the server.', 
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+    error: process.env.NODE_ENV === 'development' ? err.stack : err.message
   });
 });
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`G-TECH E-Commerce server is running on port ${PORT}`);
 });
+
+// Trigger hot-reload after Prisma Client generation

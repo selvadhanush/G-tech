@@ -2,11 +2,10 @@ const prisma = require('../src/config/prisma');
 const bcrypt = require('bcryptjs');
 
 async function main() {
-  console.log('Seeding database...');
+  console.log('Seeding database with e-commerce defaults...');
 
   // 1. Seed Admin User
   const adminEmail = 'reach2gtech@gmail.com';
-  const adminUsername = 'admin';
   const adminPassword = 'gtech_admin_2026';
   const passwordHash = await bcrypt.hash(adminPassword, 10);
 
@@ -14,117 +13,168 @@ async function main() {
     where: { email: adminEmail },
     update: {
       passwordHash,
+      role: 'GTECH_ADMIN'
     },
     create: {
-      username: adminUsername,
+      name: 'G-TECH Admin',
       email: adminEmail,
+      phone: '9363706040',
       passwordHash,
-      role: 'ADMIN',
+      role: 'GTECH_ADMIN',
+      isActive: true
     },
   });
+  console.log(`Admin user upserted: ${admin.name} (${admin.email})`);
 
-  console.log(`Admin user upserted: ${admin.username} (${admin.email})`);
-  console.log(`Default admin credentials: Username: admin, Password: ${adminPassword}`);
+  // 2. Seed Customer User (for testing)
+  const customerEmail = 'customer@gtech.com';
+  const customerPassword = 'gtech_customer_2026';
+  const customerPasswordHash = await bcrypt.hash(customerPassword, 10);
+  const customer = await prisma.user.upsert({
+    where: { email: customerEmail },
+    update: { passwordHash: customerPasswordHash },
+    create: {
+      name: 'Test Customer',
+      email: customerEmail,
+      phone: '9988776655',
+      passwordHash: customerPasswordHash,
+      role: 'CUSTOMER',
+      isActive: true
+    }
+  });
+  console.log(`Customer user upserted: ${customer.name} (${customer.email})`);
 
-  // 2. Seed Services
-  const defaultServices = [
-    {
-      title: 'Laptop Services',
-      description: 'Professional laptop repair, hardware upgrades (RAM/SSD), OS installation, virus removal, keyboard & screen replacements for all major brands.',
-      imageUrl: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&q=80&w=800',
-    },
-    {
-      title: 'Desktop Services',
-      description: 'Custom desktop building for gaming, office, & editing. Hardware troubleshooting, motherboard repairs, thermal paste replacement, and regular maintenance.',
-      imageUrl: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&q=80&w=800',
-    },
-    {
-      title: 'Networking Solutions',
-      description: 'End-to-end office networking setup, router/switch configurations, structured cabling, secure WiFi installation, and VPN configurations.',
-      imageUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=800',
-    },
-    {
-      title: 'CCTV Installation & Maintenance',
-      description: 'High-definition analog and IP security camera installation. Remote mobile viewing configuration, DVR/NVR setups, and annual maintenance contracts (AMC).',
-      imageUrl: 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&q=80&w=800',
-    },
+  // 3. Seed Categories
+  const categoriesData = [
+    { name: 'Laptop', slug: 'laptop' },
+    { name: 'Desktop', slug: 'desktop' },
+    { name: 'Networking Equipment', slug: 'networking' },
+    { name: 'CCTV Cameras', slug: 'cctv' },
+    { name: 'Accessories', slug: 'accessories' }
   ];
 
-  // We can delete existing services to seed clean or just check
-  // For a clean seed, let's delete existing ones or upsert them. We'll do a simple deleteMany and createMany
-  await prisma.service.deleteMany({});
-  for (const service of defaultServices) {
-    await prisma.service.create({ data: service });
+  await prisma.category.deleteMany();
+  
+  const categories = {};
+  for (const cat of categoriesData) {
+    const created = await prisma.category.create({ data: cat });
+    categories[cat.slug] = created.id;
   }
-  console.log('Services seeded successfully.');
+  console.log('Categories seeded.');
 
-  // 3. Seed Projects
-  const defaultProjects = [
+  // 4. Seed Products
+  const productsData = [
     {
-      title: 'Office Network Infrastructure Setup',
-      description: 'Complete Cat6 cabling, rack setup, and managed switch configuration for a 50-node IT company office in T-Nagar.',
-      imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800',
-      category: 'Networking',
-      location: 'T-Nagar, Chennai',
-      completedDate: '2026-04-10',
+      name: 'Dell Latitude 3440 Business Laptop',
+      slug: 'dell-latitude-3440',
+      description: 'Intel Core i5 12th Gen, 16GB DDR4 RAM, 512GB PCIe NVMe SSD, 14-inch Full HD display, Windows 11 Pro.',
+      price: 58000,
+      discountPrice: 54999,
+      stock: 15,
+      sku: 'GTECH-LAP-001',
+      brand: 'Dell',
+      imageUrls: ['https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: true,
+      categoryId: categories['laptop']
     },
     {
-      title: 'Commercial Showroom CCTV Surveillance',
-      description: 'Installation of 16 Hikvision IP cameras with remote mobile app access and 30-day backup storage setup.',
-      imageUrl: 'https://images.unsplash.com/photo-1524413840003-05174b1e7d73?auto=format&fit=crop&q=80&w=800',
-      category: 'CCTV',
-      location: 'Richie Street, Chennai',
-      completedDate: '2026-05-18',
+      name: 'Lenovo ThinkPad E14 Gen 5',
+      slug: 'lenovo-thinkpad-e14',
+      description: 'AMD Ryzen 5 7530U processor, 8GB DDR4 RAM (expandable), 512GB SSD, 14-inch IPS display, Fingerprint reader.',
+      price: 49000,
+      discountPrice: 46500,
+      stock: 10,
+      sku: 'GTECH-LAP-002',
+      brand: 'Lenovo',
+      imageUrls: ['https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: false,
+      categoryId: categories['laptop']
     },
     {
-      title: 'Gaming Desktop Builds for Editing Studio',
-      description: 'Custom configured 5 high-end desktops utilizing Intel i9 processors and RTX 4070 graphic cards for 4K video editing workflows.',
-      imageUrl: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=800',
-      category: 'Desktop',
-      location: 'Adyar, Chennai',
-      completedDate: '2026-06-01',
+      name: 'High-Performance 4K Video Editing PC',
+      slug: 'high-performance-4k-editing-pc',
+      description: 'Custom assembled workstation. Intel Core i7-14700K, 32GB DDR5 Corsair Vengeance RAM, NVIDIA RTX 4070 12GB GPU, 1TB NVMe Gen4 SSD, 750W 80+ Gold PSU.',
+      price: 135000,
+      discountPrice: 128000,
+      stock: 5,
+      sku: 'GTECH-DESK-001',
+      brand: 'G-TECH Custom',
+      imageUrls: ['https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: true,
+      categoryId: categories['desktop']
     },
     {
-      title: 'Bulk Corporate Laptop Servicing & Upgrades',
-      description: 'Completed annual health check, RAM & SSD upgrades for 35 corporate laptops to optimize startup speed and workflows.',
-      imageUrl: 'https://images.unsplash.com/photo-1597872200319-382d76141664?auto=format&fit=crop&q=80&w=800',
-      category: 'Laptop',
-      location: 'Velachery, Chennai',
-      completedDate: '2026-06-12',
+      name: 'G-TECH Office Workstation PC',
+      slug: 'gtech-office-workstation-pc',
+      description: 'Intel Core i3 12th Gen, 8GB DDR4 RAM, 256GB SSD + 1TB HDD, Intel UHD Graphics, premium micro-ATX cabinet, keyboard & mouse combo.',
+      price: 26000,
+      discountPrice: 24000,
+      stock: 20,
+      sku: 'GTECH-DESK-002',
+      brand: 'G-TECH Custom',
+      imageUrls: ['https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: false,
+      categoryId: categories['desktop']
     },
+    {
+      name: 'TP-Link JetStream 24-Port Gigabit Switch',
+      slug: 'tp-link-24-port-switch',
+      description: '24-Port Gigabit Smart Switch with 4 SFP Slots, L2/L3 static routing, secure enterprise features, rack-mountable.',
+      price: 12000,
+      discountPrice: 10800,
+      stock: 8,
+      sku: 'GTECH-NET-001',
+      brand: 'TP-Link',
+      imageUrls: ['https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: true,
+      categoryId: categories['networking']
+    },
+    {
+      name: 'Ubiquiti UniFi U6-Lite Access Point',
+      slug: 'unifi-u6-lite-ap',
+      description: 'Wi-Fi 6 Access Point with dual-band support, 1.5 Gbps aggregate throughput, PoE powered (injector sold separately).',
+      price: 14500,
+      discountPrice: 13999,
+      stock: 12,
+      sku: 'GTECH-NET-002',
+      brand: 'Ubiquiti',
+      imageUrls: ['https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: false,
+      categoryId: categories['networking']
+    },
+    {
+      name: 'CP PLUS 4MP Dome Network IP Camera',
+      slug: 'cp-plus-4mp-dome-ip-camera',
+      description: '4 Megapixel resolution, H.265+ compression, 30m Smart IR range, IP67 weatherproof rating, PoE enabled, built-in mic.',
+      price: 4500,
+      discountPrice: 3800,
+      stock: 50,
+      sku: 'GTECH-CCTV-001',
+      brand: 'CP PLUS',
+      imageUrls: ['https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: true,
+      categoryId: categories['cctv']
+    },
+    {
+      name: 'Logitech MK220 Wireless Keyboard & Mouse',
+      slug: 'logitech-mk220-wireless-combo',
+      description: 'Compact space-saving layout, 2.4GHz wireless connectivity with 10m range, long-lasting battery life.',
+      price: 1500,
+      discountPrice: 1349,
+      stock: 40,
+      sku: 'GTECH-ACC-001',
+      brand: 'Logitech',
+      imageUrls: ['https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=800'],
+      isFeatured: false,
+      categoryId: categories['accessories']
+    }
   ];
 
-  await prisma.project.deleteMany({});
-  for (const project of defaultProjects) {
-    await prisma.project.create({ data: project });
+  await prisma.product.deleteMany();
+  for (const prod of productsData) {
+    await prisma.product.create({ data: prod });
   }
-  console.log('Projects seeded successfully.');
-
-  // 4. Seed Testimonials
-  const defaultTestimonials = [
-    {
-      customerName: 'Rajesh Kumar (Adithya Builders)',
-      rating: 5,
-      review: 'G-TECH Innovation did a fantastic job with our new office network installation. Professional team, prompt response, and absolute value for money.',
-    },
-    {
-      customerName: 'Priya Sundar',
-      rating: 5,
-      review: 'My Dell laptop had a motherboard issue and black screen. The service technicians at Richie Street Vijaya Lakshmi Complex diagnosed and fixed it within 24 hours. Highly recommended!',
-    },
-    {
-      customerName: 'Manoj Selvam',
-      rating: 4,
-      review: 'Got 8 CCTV cameras installed for my apartment complex. The wiring is very neat, and the mobile application viewing works seamlessly. Good explanation on how to operate it.',
-    },
-  ];
-
-  await prisma.testimonial.deleteMany({});
-  for (const testimonial of defaultTestimonials) {
-    await prisma.testimonial.create({ data: testimonial });
-  }
-  console.log('Testimonials seeded successfully.');
-
+  console.log('Products seeded successfully.');
   console.log('Database seeding completed!');
 }
 

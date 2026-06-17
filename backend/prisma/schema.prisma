@@ -4,15 +4,202 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GTECH_ADMIN
+  CUSTOMER
+}
+
+enum PaymentMethod {
+  COD
+  ONLINE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ContactStatus {
+  SUBMITTED
+  REVIEWING
+  RESOLVED
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String   @unique
-  email        String   @unique
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  phone        String?
   passwordHash String
-  role         String   @default("ADMIN")
+  role         Role      @default(CUSTOMER)
+  isActive     Boolean   @default(true)
+  refreshToken String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  addresses    Address[]
+  cart         Cart?
+  orders       Order[]
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([createdAt])
+}
+
+model Product {
+  id            String      @id @default(uuid())
+  name          String
+  slug          String      @unique
+  description   String
+  price         Float
+  discountPrice Float?
+  stock         Int         @default(0)
+  sku           String      @unique
+  brand         String
+  imageUrls     String[]
+  isFeatured    Boolean     @default(false)
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([sku])
+  @@index([createdAt])
+}
+
+model Cart {
+  id         String     @id @default(uuid())
+  customerId String     @unique
+  customer   User       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items      CartItem[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cartId])
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model Address {
+  id           String   @id @default(uuid())
+  customerId   String
+  customer     User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  pincode      String
+  country      String   @default("India")
+  isDefault    Boolean  @default(false)
+  orders       Order[]
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  customerId     String
+  customer       User          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  addressId      String
+  address        Address       @relation(fields: [addressId], references: [id], onDelete: Restrict)
+  paymentMethod  PaymentMethod
+  paymentStatus  PaymentStatus @default(PENDING)
+  orderStatus    OrderStatus   @default(PLACED)
+  subtotal       Float
+  tax            Float
+  shippingCharge Float
+  totalAmount    Float
+  items          OrderItem[]
+  payment        Payment?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([customerId])
+  @@index([addressId])
+  @@index([orderStatus])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model Payment {
+  id                 String        @id @default(uuid())
+  orderId            String        @unique
+  order              Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  transactionId      String?
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  razorpaySignature  String?
+  amount             Float
+  status             PaymentStatus @default(PENDING)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Service {
@@ -21,6 +208,9 @@ model Service {
   description String
   imageUrl    String
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
 }
 
 model Project {
@@ -30,8 +220,11 @@ model Project {
   imageUrl      String
   category      String
   location      String
-  completedDate String
+  completedDate DateTime
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([createdAt])
 }
 
 model Testimonial {
@@ -40,15 +233,22 @@ model Testimonial {
   rating       Int
   review       String
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([createdAt])
 }
 
 model Contact {
-  id        String   @id @default(uuid())
+  id        String        @id @default(uuid())
   name      String
   phone     String
   email     String
   service   String
   message   String
-  status    String   @default("Submitted")
-  createdAt DateTime @default(now())
+  status    ContactStatus @default(SUBMITTED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }

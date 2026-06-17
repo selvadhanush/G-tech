@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const prisma = require('../config/prisma');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -11,7 +12,26 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gtech_secret_key_2026_super_secure');
-    req.user = decoded;
+    
+    // Check if user still exists and is active
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id }
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'User no longer exists.' });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ message: 'Your account has been deactivated.' });
+    }
+
+    req.user = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    };
     next();
   } catch (error) {
     console.error('JWT Verification Error:', error.message);
@@ -20,10 +40,10 @@ const authMiddleware = (req, res, next) => {
 };
 
 const adminMiddleware = (req, res, next) => {
-  if (req.user && req.user.role === 'ADMIN') {
+  if (req.user && req.user.role === 'GTECH_ADMIN') {
     next();
   } else {
-    res.status(403).json({ message: 'Access denied. Administrator privileges required.' });
+    res.status(403).json({ message: 'Access denied. GTECH Administrator privileges required.' });
   }
 };
 

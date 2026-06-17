@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Shield, PhoneCall, ClipboardCheck, LogOut } from 'lucide-react';
+import { Menu, X, Shield, PhoneCall, ClipboardCheck, LogOut, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import LeadTrackingModal from './LeadTrackingModal';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -17,7 +19,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'About Us', path: '/about' },
+    { name: 'Store', path: '/products' },
     { name: 'Services', path: '/services' },
     { name: 'Projects', path: '/projects' },
     { name: 'Testimonials', path: '/testimonials' },
@@ -59,6 +61,20 @@ const Navbar = () => {
 
             {/* Buttons */}
             <div className="hidden md:flex items-center gap-4">
+              {/* Cart Button */}
+              <Link
+                to="/cart"
+                className="relative p-2.5 text-secondary hover:text-primary transition-colors"
+                title="Shopping Cart"
+              >
+                <ShoppingCart size={20} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[9px] font-extrabold rounded-full h-4.5 w-4.5 flex items-center justify-center border border-white">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+
               <button
                 onClick={() => setTrackingOpen(true)}
                 className="flex items-center gap-1.5 text-xs font-semibold bg-secondary hover:bg-secondary-light text-white px-4 py-2.5 rounded-lg shadow-md transition-all active:scale-95"
@@ -70,12 +86,24 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <div className="flex items-center gap-2">
                   <Link
-                    to="/admin"
+                    to="/profile"
                     className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-2.5 rounded-lg border border-slate-200 transition-colors"
+                    title="My Profile"
                   >
-                    <Shield size={14} className="text-primary" />
-                    Admin
+                    <User size={14} className="text-secondary" />
+                    <span>Profile</span>
                   </Link>
+
+                  {user?.role === 'GTECH_ADMIN' && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center gap-1 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold px-3 py-2.5 rounded-lg transition-colors"
+                    >
+                      <Shield size={14} />
+                      <span>Admin</span>
+                    </Link>
+                  )}
+
                   <button
                     onClick={handleLogout}
                     className="text-slate-500 hover:text-primary p-2 rounded-lg transition-colors"
@@ -85,18 +113,30 @@ const Navbar = () => {
                   </button>
                 </div>
               ) : (
-                <a
-                  href="tel:04435395138"
+                <Link
+                  to="/login"
                   className="flex items-center gap-1.5 text-xs font-semibold bg-primary hover:bg-primary-dark text-white px-4 py-2.5 rounded-lg shadow-md transition-all active:scale-95"
                 >
-                  <PhoneCall size={14} />
-                  Call Support
-                </a>
+                  <User size={14} />
+                  <span>Sign In</span>
+                </Link>
               )}
             </div>
 
             {/* Mobile menu button */}
             <div className="flex items-center md:hidden gap-2">
+              <Link
+                to="/cart"
+                className="relative p-2 text-secondary hover:text-primary transition-colors"
+                title="Cart"
+              >
+                <ShoppingCart size={20} />
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-primary text-white text-[8px] font-extrabold rounded-full h-4 w-4 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
               <button
                 onClick={() => setTrackingOpen(true)}
                 className="p-2 text-secondary hover:text-primary transition-colors"
@@ -147,34 +187,47 @@ const Navbar = () => {
               </button>
 
               {isAuthenticated ? (
-                <div className="flex gap-2">
-                  <Link
-                    to="/admin"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex-grow flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 rounded-lg text-sm"
-                  >
-                    <Shield size={16} className="text-primary" />
-                    Admin Panel
-                  </Link>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <Link
+                      to="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-grow flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 rounded-lg text-sm"
+                    >
+                      <User size={16} className="text-secondary" />
+                      <span>My Profile</span>
+                    </Link>
+                    {user?.role === 'GTECH_ADMIN' && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex-grow flex items-center justify-center gap-2 bg-primary/10 text-primary font-semibold py-3 rounded-lg text-sm"
+                      >
+                        <Shield size={16} />
+                        <span>Admin Console</span>
+                      </Link>
+                    )}
+                  </div>
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="p-3 bg-red-50 text-primary border border-red-100 rounded-lg hover:bg-red-100 transition-colors"
-                    title="Logout"
+                    className="w-full flex items-center justify-center gap-2 bg-red-50 text-primary border border-red-100 py-3 rounded-lg text-sm font-bold"
                   >
-                    <LogOut size={18} />
+                    <LogOut size={16} />
+                    <span>Logout</span>
                   </button>
                 </div>
               ) : (
-                <a
-                  href="tel:04435395138"
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
                   className="w-full flex items-center justify-center gap-2 text-sm font-semibold bg-primary hover:bg-primary-dark text-white py-3 rounded-lg shadow transition-colors"
                 >
-                  <PhoneCall size={16} />
-                  Call G-TECH Support
-                </a>
+                  <User size={16} />
+                  <span>Sign In / Register</span>
+                </Link>
               )}
             </div>
           </div>

@@ -16,7 +16,7 @@ const createContact = async (req, res) => {
         email,
         service,
         message,
-        status: 'Submitted',
+        status: 'SUBMITTED',
       },
     });
 
@@ -79,7 +79,7 @@ const updateContactStatus = async (req, res) => {
     return res.status(400).json({ message: 'Status is required.' });
   }
 
-  const allowedStatuses = ['Submitted', 'Under Review', 'In Progress', 'Completed'];
+  const allowedStatuses = ['SUBMITTED', 'REVIEWING', 'RESOLVED'];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ message: `Invalid status. Must be one of: ${allowedStatuses.join(', ')}` });
   }

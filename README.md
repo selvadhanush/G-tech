@@ -1,121 +1,126 @@
-# G-TECH Innovation Platform
+# G-TECH Innovation E-Commerce Platform
 
-Welcome to the production-ready business management and customer lead tracking platform built for **G-TECH Innovation**, Chennai. This workspace is split into two primary components: a high-performance Node/Express/Prisma REST API (`backend`) and a dynamic React/Vite/Tailwind CSS user experience (`frontend`).
+Welcome to the production-ready business management and full-stack e-commerce retail platform built for **G-TECH Innovation**, Chennai. This repository contains a high-performance Node/Express/Prisma REST API (`backend`) on port `5050` and a responsive React/Vite/Tailwind CSS user experience (`frontend`).
 
 ---
 
 ## 🏛️ System Architecture
 
-The following diagram outlines the data flow between components:
+The following diagram outlines the system connectivity and commerce pipelines:
 
 ```mermaid
 graph TD
-  User[Client Browser / Admin] -->|HTTPS Requests| FE[Vite / React SPA]
-  FE -->|Axios REST Queries| BE[Node.js / Express API]
-  BE -->|Multer Fallback / Cloudinary API| Cloudinary[(Cloudinary Cloud Storage)]
-  BE -->|Nodemailer SMTP| SMTP[SMTP Mail Client / Gmail]
-  BE -->|Prisma ORM Client| DB[(Neon PostgreSQL Database)]
+  User[Client Storefront / Admin Panel] -->|HTTPS Requests| FE[Vite / React SPA]
+  FE -->|Axios REST Queries + Auth Tokens| BE[Node.js / Express API]
+  BE -->|Multer / Cloudinary SDK| Cloudinary[(Cloudinary Cloud Storage)]
+  BE -->|Razorpay Verification Gateway| Razorpay[Razorpay Gateway API]
+  BE -->|Prisma Client ORM| DB[(Neon Serverless PostgreSQL)]
 ```
 
 ---
 
 ## 💻 Technology Stack
 
-### Backend
-- **Core Engine**: Node.js & Express.js
-- **Database Engine**: PostgreSQL (Neon Serverless)
-- **ORM Interface**: Prisma v7.8.0
-- **Security Protocols**: Stateless JWT (JSON Web Tokens) & `bcryptjs` password hashing
-- **File Uploads**: `multer` with auto-upload to Cloudinary (fallback to Unsplash stock pictures if keys are unset)
-- **Communications**: `nodemailer` SMTP system for lead alerts
+### Backend Engine
+- **Framework**: Node.js & Express.js (configured with Helmet security headers & express-rate-limit).
+- **Database Engine**: Neon Serverless PostgreSQL.
+- **ORM Interface**: Prisma Client.
+- **Authentication**: JWT stateless auth with Access Tokens (15m) & Refresh Tokens (7d), plus bcrypt password hashing.
+- **Validations**: Strict schemas via Zod middleware.
+- **Gateway Integrations**: Cloudinary image uploads & Razorpay payment confirmations.
 
-### Frontend
-- **Framework Scaffolding**: React 19 & Vite 8
-- **Design styling**: Tailwind CSS v3
-- **Animations & transitions**: Framer Motion
-- **Form management**: React Hook Form
-- **API client**: Axios with automatic Authorization header injection
+### Frontend Client
+- **Framework**: React 19 & Vite 8 (with Tailwind CSS v3).
+- **State managers**: AuthContext (token/role retention) & CartContext (calculations, shipping & GST tax aggregators).
+- **Router Guarding**: Client-side role-based protected routes (`GTECH_ADMIN` vs `CUSTOMER`).
+- **Icons**: Lucide React.
+- **HTTP Client**: Axios with interceptor-driven request queues for token refresh requests.
 
 ---
 
 ## 🔑 Environment Configurations
 
-Create `.env` files matching the instructions below.
-
 ### Backend Configurations (`/backend/.env`)
 Create a `.env` in the `backend` folder:
 ```env
-PORT=5000
+PORT=5050
 DATABASE_URL="postgresql://username:password@hostname/dbname?sslmode=require"
-JWT_SECRET="gtech_jwt_secret_token_Chennai_2026"
-JWT_EXPIRES_IN="7d"
+JWT_SECRET="gtech_jwt_access_secret_chennai_2026"
+JWT_REFRESH_SECRET="gtech_jwt_refresh_secret_chennai_2026"
 
-# Cloudinary Credentials (Optional - Falls back to Unsplash stock images)
-CLOUDINARY_CLOUD_NAME=""
-CLOUDINARY_API_KEY=""
-CLOUDINARY_API_SECRET=""
+# Cloudinary Integration
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="your_api_key"
+CLOUDINARY_API_SECRET="your_api_secret"
 
-# SMTP Credentials (Optional - Skips email triggering if empty)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT=587
-SMTP_USER="reach2gtech@gmail.com"
-SMTP_PASS="your-app-password"
+# Razorpay Integration
+RAZORPAY_KEY_ID="rzp_test_your_key_id"
+RAZORPAY_KEY_SECRET="your_key_secret"
 ```
 
 ### Frontend Configurations (`/frontend/.env`)
 Create a `.env` in the `frontend` folder:
 ```env
-VITE_API_URL="http://localhost:5000/api"
+VITE_API_URL="http://localhost:5050/api"
+VITE_RAZORPAY_KEY_ID="rzp_test_your_key_id"
 ```
 
 ---
 
 ## 🔌 API Route Schema
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| **POST** | `/api/auth/login` | Public | Authenticates admin, returns JWT. |
-| **GET** | `/api/auth/me` | Admin | Fetches profile of current logged-in user. |
-| **GET** | `/api/services` | Public | Returns all catalog services. |
-| **POST** | `/api/services` | Admin | Creates service listing (supports Image Upload). |
-| **PUT** | `/api/services/:id` | Admin | Modifies service specifications. |
-| **DELETE** | `/api/services/:id` | Admin | Removes service listing. |
-| **GET** | `/api/projects` | Public | Returns completed projects (supports category filters). |
-| **POST** | `/api/projects` | Admin | Adds completed project log (supports Image Upload). |
-| **PUT** | `/api/projects/:id` | Admin | Modifies completed project entry. |
-| **DELETE** | `/api/projects/:id` | Admin | Removes project entry. |
-| **GET** | `/api/testimonials` | Public | Retrieves customer review feed. |
-| **POST** | `/api/testimonials` | Public | Submits customer review. |
-| **PUT** | `/api/testimonials/:id` | Admin | Modifies review specifications / rating. |
-| **DELETE** | `/api/testimonials/:id` | Admin | Removes review entry. |
-| **POST** | `/api/contacts` | Public | Submits contact lead form (Sends email notification). |
-| **GET** | `/api/contacts` | Admin | Lists all contact lead requests. |
-| **PUT** | `/api/contacts/:id` | Admin | Cycles ticket status (*Submitted, Under Review, In Progress, Completed*). |
-| **DELETE** | `/api/contacts/:id` | Admin | Removes lead ticket record. |
-| **GET** | `/api/contacts/track/:id`| Public | Tracks status of ticket using UUID. |
-| **GET** | `/api/dashboard/stats` | Admin | Returns system-wide statistics for dashboards. |
+### 1. Authentication
+- `POST /api/auth/register` - Create customer account.
+- `POST /api/auth/login` - Sign in, returns Access Token & Refresh Token.
+- `POST /api/auth/refresh` - Swap Refresh Token for new Access Token.
+- `POST /api/auth/logout` - Invalidate session refresh keys.
+- `GET /api/auth/me` - Retrieve active session details.
+
+### 2. Product Catalog
+- `GET /api/products` - Filter products by search, categories, brands, price range, and sort orders.
+- `GET /api/products/:id` - Fetch detailed specifications.
+- `POST /api/products` - Admin: Create new product listing (supports multiple image uploads).
+- `PUT /api/products/:id` - Admin: Update specifications and inventory.
+- `DELETE /api/products/:id` - Admin: Remove product listing.
+
+### 3. Shopping Cart
+- `GET /api/cart` - Retrieve active customer cart items.
+- `POST /api/cart/add` - Add item to cart with stock validation checks.
+- `PUT /api/cart/update` - Adjust cart quantities.
+- `DELETE /api/cart/remove` - Remove item from cart.
+
+### 4. Checkout & Orders
+- `POST /api/orders` - Initialize order, calculates GST & flat shipping, decrements stock transactionally. Creates Razorpay payment order.
+- `GET /api/orders/my-orders` - Fetch personal customer order history.
+- `POST /api/payment/verify` - Verify Razorpay transaction signatures and update statuses.
+
+### 5. Admin Controls
+- `GET /api/admin/dashboard` - Stats aggregation (total users, products, orders, revenue).
+- `GET /api/admin/orders` - View all store orders.
+- `PUT /api/admin/orders/:id/status` - Update shipping stage (`PLACED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`).
+- `PUT /api/admin/orders/:id/payment` - Update transaction stage (`PENDING`, `SUCCESS`, `FAILED`).
+- `GET /api/admin/users` - View customer directory.
+- `PUT /api/admin/users/:id/status` - Block/unblock customer account status.
 
 ---
 
 ## 🛠️ Step-by-Step Installation
 
 ### 1. Database Setup
-Ensure PostgreSQL is running locally or online. Update the `DATABASE_URL` in `/backend/.env`. Run the following to configure the database schema:
+Ensure PostgreSQL is running locally or online. Update the `DATABASE_URL` in `/backend/.env`. Run the following to push the schema:
 ```bash
 cd backend
 npx prisma db push
 ```
 
 ### 2. Seed Database
-Seeding creates initial services, projects, and the default Admin account (`reach2gtech@gmail.com` with password `GtechAdmin2026!`):
+Run seed to generate default administrator credentials (`admin@gtech.com` / `AdminPass123!`), categories, and product catalogs:
 ```bash
-npm run seed
-# or: node prisma/seed.js
+npx prisma db seed
 ```
 
 ### 3. Running Development Servers
-To run the full stack locally:
-- **Backend (Port 5000)**:
+- **Backend (Port 5050)**:
   ```bash
   cd backend
   npm run dev
@@ -131,21 +136,11 @@ To run the full stack locally:
 ## 🚀 Deployment Specifications
 
 ### Backend Deployment (Render / Railway)
-1. Add a **Web Service** pointing to your repository.
-2. Set Build command to: `npm install && npx prisma generate`
-3. Set Start command to: `npm start`
-4. Set Environment Variables corresponding to `/backend/.env`.
+1. Set Build command to: `npm install && npx prisma generate`
+2. Set Start command to: `npm start`
+3. Configure environment variables in dashboard settings.
 
 ### Frontend Deployment (Vercel / Netlify)
-1. Import the `frontend` subfolder.
-2. Set Framework Preset to **Vite**.
-3. Set Build command to: `npm run build`
-4. Set Output Directory to: `dist`
-5. Configure `VITE_API_URL` environment variable pointing to the deployed backend.
-
----
-
-## ⚙️ Security Policies
-- **JWT stateless auth**: Transmitted via bearer tokens in standard Axios request headers.
-- **RBAC protection**: Standard operations require admin authorization validation flags.
-- **Form validations**: All inputs are checked on the frontend via `react-hook-form` regex patterns and verified with backend fallback filters.
+1. Select Vite framework preset.
+2. Set Build command to: `npm run build`
+3. Configure `VITE_API_URL` pointing to production API.
