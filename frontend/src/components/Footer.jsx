@@ -95,19 +95,19 @@ const Footer = () => {
                   1st Floor, Vijaya Lakshmi Complex,<br />
                   #12, Athipattan Street,<br />
                   Richie Street, Mount Road,<br />
-                  Chennai - 600002
+                  Chennai – 600002.
                 </span>
               </li>
               <li className="flex gap-3 items-center">
                 <Phone size={16} className="text-primary shrink-0" />
                 <a href="tel:04435395138" className="hover:text-primary transition-colors text-slate-400">
-                  044-35395138
+                  044 – 3539 5138
                 </a>
               </li>
               <li className="flex gap-3 items-center">
                 <Phone size={16} className="text-primary shrink-0" />
                 <a href="tel:+919363706040" className="hover:text-primary transition-colors text-slate-400">
-                  +91 9363706040
+                  +91 93637 06040
                 </a>
               </li>
               <li className="flex gap-3 items-center">

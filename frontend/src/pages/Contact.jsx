@@ -103,8 +103,9 @@ const Contact = () => {
                   <h4 className="font-semibold text-xs text-secondary uppercase tracking-wider">Address</h4>
                   <p className="text-slate-500 text-xs mt-1 leading-relaxed">
                     1st Floor, Vijaya Lakshmi Complex,<br />
-                    #12, Athipattan Street, Richie Street,<br />
-                    Mount Road, Chennai - 600002
+                    #12, Athipattan Street,<br />
+                    Richie Street, Mount Road,<br />
+                    Chennai – 600002.
                   </p>
                 </div>
               </div>
@@ -114,9 +115,9 @@ const Contact = () => {
                 <div>
                   <h4 className="font-semibold text-xs text-secondary uppercase tracking-wider">Hotlines</h4>
                   <p className="text-slate-500 text-xs mt-1">
-                    <a href="tel:04435395138" className="hover:text-primary transition-colors">044-35395138</a>
+                    <a href="tel:04435395138" className="hover:text-primary transition-colors">044 – 3539 5138</a>
                     <span className="mx-2 text-slate-300">|</span>
-                    <a href="tel:+919363706040" className="hover:text-primary transition-colors">+91 9363706040</a>
+                    <a href="tel:+919363706040" className="hover:text-primary transition-colors">+91 93637 06040</a>
                   </p>
                 </div>
               </div>

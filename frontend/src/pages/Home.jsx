@@ -125,7 +125,7 @@ const Home = () => {
                     className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all active:scale-95 text-sm"
                   >
                     <Phone size={18} />
-                    Call Now: 044-35395138
+                    Call Now: 044 – 3539 5138
                   </a>
                   <button
                     onClick={handleWhatsAppClick}
@@ -392,7 +392,7 @@ const Home = () => {
                 href="tel:04435395138"
                 className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold px-8 py-4 rounded-xl shadow-lg transition-colors text-sm"
               >
-                Call: 044-35395138
+                Call: 044 – 3539 5138
               </a>
             </div>
           </motion.div>
