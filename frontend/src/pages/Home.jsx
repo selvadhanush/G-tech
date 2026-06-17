@@ -200,9 +200,6 @@ const Home = () => {
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-2.5 text-primary shadow-sm h-10 w-10 flex items-center justify-center">
-                      <Icon size={20} />
-                    </div>
                   </div>
                 <div className="p-6 flex-grow flex flex-col justify-between">
                   <div>
